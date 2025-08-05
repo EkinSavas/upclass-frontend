@@ -26,10 +26,20 @@ import {
   Star,
   Brain,
   Heart,
-  Lightbulb
+  Lightbulb,
+  UserPlus,
+  UserCog,
+  Building,
+  Shield,
+  Database,
+  FileText,
+  PieChart
 } from "lucide-react";
 import toast from "react-hot-toast";
 import styled from "styled-components";
+import StudentManagement from "./components/StudentManagement";
+import TeacherManagement from "./components/TeacherManagement";
+import ClassManagement from "./components/ClassManagement";
 
 // Styled Components
 const PageWrapper = styled.div`
@@ -318,7 +328,8 @@ interface DashboardCardProps {
   title: string;
   description: string;
   icon: React.ComponentType<{ size?: number; color?: string; style?: React.CSSProperties }>;
-  href: string;
+  href?: string;
+  onClick?: () => void;
   gradient: string;
   stats?: string;
   color: string;
@@ -328,7 +339,8 @@ const DashboardCard = ({
   title, 
   description, 
   icon: Icon, 
-  href, 
+  href,
+  onClick,
   gradient,
   stats,
   color
@@ -338,11 +350,64 @@ const DashboardCard = ({
     whileTap={{ scale: 0.98 }}
     style={{ height: '100%' }}
   >
-    <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+    {href ? (
+      <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Card
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ height: '100%', position: 'relative', overflow: 'hidden' }}
+        >
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <div style={{
+                width: '2.5rem',
+                height: '2.5rem',
+                background: gradient,
+                borderRadius: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                color: 'white',
+                fontWeight: 600
+              }}>
+                <Icon size={24} />
+              </div>
+              <ChevronRight size={20} color="#9ca3af" />
+            </div>
+            
+            <Title size="md" style={{ marginBottom: '0.5rem' }}>{title}</Title>
+            <Subtitle style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>{description}</Subtitle>
+            
+            {stats && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                <Sparkles size={16} />
+                <span>{stats}</span>
+              </div>
+            )}
+          </div>
+          
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `linear-gradient(135deg, ${color}10 0%, ${color}05 100%)`,
+              opacity: 0,
+              transition: 'opacity 0.3s ease',
+              pointerEvents: 'none'
+            }}
+          />
+        </Card>
+      </Link>
+    ) : (
       <Card
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ height: '100%', position: 'relative', overflow: 'hidden' }}
+        style={{ height: '100%', position: 'relative', overflow: 'hidden', cursor: 'pointer' }}
+        onClick={onClick}
       >
         <div style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -388,189 +453,66 @@ const DashboardCard = ({
           }}
         />
       </Card>
-    </Link>
-  </motion.div>
-);
-
-const QuickActionCard = ({ 
-  title, 
-  description, 
-  icon: Icon, 
-  onClick, 
-  variant = 'primary',
-  disabled = false
-}: {
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ size?: number; color?: string; style?: React.CSSProperties }>;
-  onClick: () => void;
-  variant?: 'primary' | 'success' | 'warning' | 'error';
-  disabled?: boolean;
-}) => (
-  <Card
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    style={{ 
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      opacity: disabled ? 0.6 : 1,
-      background: disabled ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.95)'
-    }}
-    onClick={disabled ? undefined : onClick}
-  >
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-      <div style={{
-        width: '3rem',
-        height: '3rem',
-        borderRadius: '0.75rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: variant === 'primary' ? 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)' :
-                   variant === 'success' ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' :
-                   variant === 'warning' ? 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' :
-                   'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-        color: 'white'
-      }}>
-        <Icon size={20} />
-      </div>
-      <div>
-        <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 600, color: '#1f2937' }}>{title}</h3>
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>{description}</p>
-      </div>
-    </div>
-  </Card>
-);
-
-const ActivityItem = ({ 
-  action, 
-  time, 
-  icon: Icon, 
-  color, 
-  status 
-}: {
-  action: string;
-  time: string;
-  icon: React.ComponentType<{ size?: number; color?: string; style?: React.CSSProperties }>;
-  color: string;
-  status?: 'success' | 'info' | 'warning';
-}) => (
-  <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '1rem',
-      background: 'rgba(249, 250, 251, 0.8)',
-      borderRadius: '0.75rem',
-      border: '1px solid rgba(229, 231, 235, 0.5)',
-      transition: 'all 0.3s ease'
-    }}
-    whileHover={{ 
-      background: 'rgba(249, 250, 251, 1)',
-      transform: 'translateX(4px)'
-    }}
-  >
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-      <div style={{
-        width: '2rem',
-        height: '2rem',
-        background: 'rgba(243, 244, 246, 0.8)',
-        borderRadius: '0.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Icon size={16} color={color} />
-      </div>
-      <div>
-        <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 500, color: '#1f2937' }}>{action}</p>
-        <p style={{ margin: '0.125rem 0 0 0', fontSize: '0.75rem', color: '#6b7280' }}>{time}</p>
-      </div>
-    </div>
-    <ArrowRight size={16} color="#9ca3af" />
+    )}
   </motion.div>
 );
 
 export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(false);
+  const [activeView, setActiveView] = useState<'dashboard' | 'students' | 'teachers' | 'classes'>('dashboard');
 
-  const handleQuickAction = (action: string) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      toast.success(`${action} başlatıldı! 🚀`);
-      setIsLoading(false);
-    }, 1000);
+  const handleBackToDashboard = () => {
+    setActiveView('dashboard');
   };
 
   const stats = [
     { title: "Aktif Öğrenci", value: "24", icon: Users, color: "linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)", trend: "+12% bu hafta" },
-    { title: "Canlı Ders", value: "3", icon: Play, color: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" },
-    { title: "Quiz Başarısı", value: "%92", icon: Target, color: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", trend: "+5% bu ay" },
+    { title: "Aktif Öğretmen", value: "8", icon: UserCog, color: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", trend: "+2 bu ay" },
+    { title: "Aktif Sınıf", value: "12", icon: Building, color: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", trend: "+3 bu ay" },
     { title: "Toplam XP", value: "12.5K", icon: Trophy, color: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)", trend: "+2.1K bu hafta" }
   ];
 
-  const panels = [
+  const managementPanels = [
     {
-      title: "Öğretmen Paneli",
-      description: "Ders yönetimi, öğrenci takibi ve quiz oluşturma",
-      icon: Users,
-      href: "/teacher",
+      title: "Öğrenci Yönetimi",
+      description: "Öğrenci kaydetme, sınıf atama ve takip işlemleri",
+      icon: UserPlus,
       gradient: "linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)",
-      stats: "5 aktif ders",
-      color: "#0ea5e9"
+      stats: "24 aktif öğrenci",
+      color: "#0ea5e9",
+      onClick: () => setActiveView('students')
     },
     {
-      title: "Öğrenci Paneli",
-      description: "Ders katılımı, çalışma modu ve gelişim takibi",
-      icon: BookOpen,
-      href: "/student",
+      title: "Öğretmen Yönetimi",
+      description: "Öğretmen kaydetme, sınıf atama ve performans takibi",
+      icon: UserCog,
       gradient: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-      stats: "24 çalışan öğrenci",
-      color: "#22c55e"
+      stats: "8 aktif öğretmen",
+      color: "#22c55e",
+      onClick: () => setActiveView('teachers')
     },
     {
-      title: "Veli Paneli",
-      description: "Çocuğunuzun gelişimini takip edin",
-      icon: BarChart3,
-      href: "/parent",
+      title: "Sınıf Yönetimi",
+      description: "Sınıf oluşturma, öğrenci atama ve sınıf takibi",
+      icon: Building,
       gradient: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)",
-      stats: "Haftalık rapor",
-      color: "#a855f7"
+      stats: "12 aktif sınıf",
+      color: "#a855f7",
+      onClick: () => setActiveView('classes')
     }
   ];
 
-  const quickActions = [
-    {
-      title: "Ders Başlat",
-      description: "Yeni bir canlı ders oturumu başlatın",
-      icon: Play,
-      variant: 'primary' as const,
-      action: "Ders"
-    },
-    {
-      title: "Quiz Oluştur",
-      description: "Anlık quiz hazırlayıp yayınlayın",
-      icon: Target,
-      variant: 'success' as const,
-      action: "Quiz"
-    },
-    {
-      title: "Rapor Görüntüle",
-      description: "Detaylı gelişim raporlarını inceleyin",
-      icon: BarChart3,
-      variant: 'warning' as const,
-      action: "Rapor"
-    }
-  ];
+  if (activeView === 'students') {
+    return <StudentManagement onBack={handleBackToDashboard} />;
+  }
 
-  const activities = [
-    { action: "Matematik dersi başlatıldı", time: "2 dakika önce", icon: Play, color: "#22c55e" },
-    { action: "Ahmet Yılmaz quiz'i tamamladı", time: "5 dakika önce", icon: Target, color: "#0ea5e9" },
-    { action: "Zeynep Kaya çalışma moduna geçti", time: "8 dakika önce", icon: BookOpen, color: "#a855f7" },
-    { action: "Haftalık rapor hazırlandı", time: "15 dakika önce", icon: BarChart3, color: "#f97316" }
-  ];
+  if (activeView === 'teachers') {
+    return <TeacherManagement onBack={handleBackToDashboard} />;
+  }
+
+  if (activeView === 'classes') {
+    return <ClassManagement onBack={handleBackToDashboard} />;
+  }
 
   return (
     <PageWrapper>
@@ -610,7 +552,7 @@ export default function AdminDashboard() {
             Admin Paneli 👋
           </Title>
           <Subtitle style={{ marginBottom: '2rem' }}>
-            CanlıDers+ platformunu yönetin. Hangi paneli kullanmak istiyorsunuz?
+            CanlıDers+ platformunu yönetin. Hangi işlemi yapmak istiyorsunuz?
           </Subtitle>
         </motion.div>
 
@@ -640,42 +582,17 @@ export default function AdminDashboard() {
           ))}
         </Grid>
 
-        {/* Main Panels */}
-        <Grid cols={3} gap="1.5rem" style={{ marginBottom: '2rem' }}>
-          {panels.map((panel, index) => (
-            <DashboardCard
-              key={index}
-              {...panel}
-            />
-          ))}
-        </Grid>
-
-        {/* Quick Actions */}
-        <Card style={{ marginBottom: '2rem' }}>
-          <Title size="md" style={{ marginBottom: '1rem' }}>Hızlı İşlemler</Title>
-          <Grid cols={3} gap="1rem">
-            {quickActions.map((action, index) => (
-              <QuickActionCard
+        {/* Management Panels */}
+        <Card>
+          <Title size="md" style={{ marginBottom: '1.5rem' }}>Yönetim İşlemleri</Title>
+          <Grid cols={3} gap="1.5rem">
+            {managementPanels.map((panel, index) => (
+              <DashboardCard
                 key={index}
-                {...action}
-                onClick={() => handleQuickAction(action.action)}
-                disabled={isLoading}
+                {...panel}
               />
             ))}
           </Grid>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <Title size="md" style={{ marginBottom: '1rem' }}>Son Aktiviteler</Title>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {activities.map((activity, index) => (
-              <ActivityItem
-                key={index}
-                {...activity}
-              />
-            ))}
-          </div>
         </Card>
       </MainContainer>
     </PageWrapper>
